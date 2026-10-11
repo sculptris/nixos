@@ -1118,6 +1118,8 @@ drawbar(Monitor *m)
 	}
 	x = 0;
 	for (i = 0; i < LENGTH(tags); i++) {
+		if (!(occ & 1 << i) && !(m->tagset[m->seltags] & 1 << i))
+			continue;
 		apply_fribidi(tags[i]);
 		w = TEXTW(fribidi_text);
 		drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeSel : SchemeNorm]);

@@ -77,7 +77,7 @@ static const Rule rules[] = {
 	 *	WM_NAME(STRING) = title
 	 */
 	/* class                instance                    title               tags mask     isfloating   isterminal  noswallow   monitor */
-	{ "Alacritty",          NULL,                       NULL,               0,            0,           1,          0,          -1 },
+	{ "kitty",          NULL,                       NULL,               0,            0,           1,          0,          -1 },
 	{ "mpv",                NULL,                       NULL,               0,            1,           0,          0,          -1 },
 	{ "Shotwell",           NULL,                       NULL,               0,            1,           0,          0,          -1 },
 	{ "Arandr",             NULL,                       NULL,               0,            1,           0,          0,          -1 },
@@ -110,6 +110,7 @@ static const int attachbelow    = 1;    /* 1 means attach after the currently ac
 #define FORCE_VSPLIT 1  /* nrowgrid layout: force two clients to always split vertically */
 #include "vanitygaps.c"
 
+#include "fibonacci.c"
 static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "[]=",      tile },    /* first entry is default */
@@ -119,6 +120,8 @@ static const Layout layouts[] = {
 	{ "|M|",      centeredmaster },
 	{ "><>",      NULL },    /* no layout function means floating behavior */
 	{ NULL,       NULL },
+ 	{ "[@]",      spiral },
+ 	{ "[\\]",      dwindle },
 };
 
 /* key definitions */
@@ -139,17 +142,17 @@ static const Layout layouts[] = {
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "dmenu_run", "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbordercolor, "-sf", selfgcolor, NULL };
 static const char *clipmenucmd[]   = { "clipmenu", NULL };
-static const char *termcmd[]       = { "alacritty", NULL };
+static const char *termcmd[]       = { "kitty", NULL };
 static const char scratchpadname[] = "scratchpad";
-static const char *scratchpadcmd[] = { "alacritty", "-t", "scratchpad", "-e", "tmux", "new", "-A", "-s", "scratchpad", "nano", "/tmp/scratchpad", NULL };
+static const char *scratchpadcmd[] = { "kitty", "-t", "scratchpad", "-e", "tmux", "new", "-A", "-s", "scratchpad", "nano", "/tmp/scratchpad", NULL };
 
 static const Key keys[] = {
 	/* modifier                     key                        function        argument */
 
 	/* applications */
-	{ MODKEY,                       XK_r,                      spawn,          {.v = dmenucmd } },
+	{ MODKEY,                       XK_p,                      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_y,                      spawn,          {.v = clipmenucmd } },
-	{ MODKEY|ShiftMask,             XK_Return,                 spawn,          {.v = termcmd } },
+	{ MODKEY,                       XK_Return,                 spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_grave,                  togglescratch,  {.v = scratchpadcmd } },
 	{ MODKEY,                       XK_w,                      spawn,          SHCMD("$BROWSER") },
 	{ MODKEY,                       XK_e,                      spawn,          SHCMD("$BROWSER -p tor -new-window") },
@@ -160,7 +163,7 @@ static const Key keys[] = {
 	/* system commands */
 	{ ALTKEY,                       XK_F1,                     spawn,          SHCMD("rofr.sh -r") },
 	{ MODKEY,                       XK_Escape,                 spawn,          SHCMD("rofr.sh -l") },
-	{ MODKEY,                       XK_p,                      spawn,          SHCMD("scrot 'screenshot_%Y%m%d-%H%M%S_$wx$h.png' -e 'mv $f $HOME/'") },	
+	{ MODKEY|ShiftMask,             XK_p,                      spawn,          SHCMD("scrot 'screenshot_%Y%m%d-%H%M%S_$wx$h.png' -e 'mv $f $HOME/'") },	
 	{ 0,                            XK_Print,                  spawn,          SHCMD("scrot 'screenshot_%Y%m%d-%H%M%S_$wx$h.png' -e 'mv $f $HOME/'") },	
 	{ 0,                            XF86XK_TouchpadToggle,     spawn,          SHCMD("toggle_touchpad") },
 	{ 0,                            XF86XK_MonBrightnessUp,    spawn,          SHCMD("xbacklight -inc 5") },
@@ -172,7 +175,7 @@ static const Key keys[] = {
 	/* dwm commands */
 	{ MODKEY,                       XK_b,                      togglebar,      {0} },
 	{ MODKEY,                       XK_F5,                     xrdb,           {.v = NULL } },
-	{ MODKEY|ShiftMask,             XK_q,                      quit,           {0} },
+	{ MODKEY|ShiftMask,             XK_q,                      killclient,     {0} },
 	{ MODKEY|ControlMask|ShiftMask, XK_q,                      quit,           {1} },
 
 	/* client commands */
@@ -187,7 +190,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_bracketright,           setmfact,       {.f = +0.02} },
 	{ MODKEY,                       XK_Return,                 zoom,           {0} },
 	{ MODKEY|ShiftMask,             XK_space,                  togglefloating, {0} },
-	{ MODKEY|ShiftMask,             XK_c,                      killclient,     {0} },
+	{ MODKEY|ShiftMask,             XK_c,                      quit,           {0} },
 	{ ALTKEY,                       XK_F4,                     killclient,     {0} },
 
 	/* layout commands */
